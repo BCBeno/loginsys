@@ -1,5 +1,7 @@
 import json
 import hashlib
+import bcrypt
+import sqlite3
 
 def log():
     with open('user.json') as f:
@@ -16,8 +18,8 @@ def log():
     else:
         pw = login[user]
         pw2 = input('Enter password:\n')
-        pw3 = hashlib.md5(pw2.encode()).hexdigest()
-        if pw3 != pw:
+        pw = pw.encode('utf-8')
+        if bcrypt.checkpw(pw2.encode('utf-8'), pw) == 0:
             print('Wrong password! Retry?')
             while True:
                 retry = str(input('YES/NO (Y/N)\n'))
@@ -41,8 +43,9 @@ def register():
         print('You are already registered.\n')
         main()
     pw = input('Enter password:\n')
-    result = hashlib.md5(pw.encode())
-    login[user] = result.hexdigest()
+    result = bcrypt.hashpw(pw.encode('utf-8'), bcrypt.gensalt())
+    result = result.decode('utf-8')
+    login[user] = result
     save()
     print('You are now registered!')
     main()
@@ -54,15 +57,15 @@ def change():
     user = input('Enter username:\n')
     if user in login:
         old = input('Enter old password:\n')
-        old = hashlib.md5((old.encode())).hexdigest()
-        if old != login[user]:
+        if bcrypt.checkpw(old.encode('utf-8'), login[user].encode('utf-8')) == 0:
             print('Wrong password!')
             main()
             return
         else:
             pw = input('Enter new password:\n')
-            result = hashlib.md5(pw.encode())
-            login[user] = result.hexdigest()
+            result = bcrypt.hashpw(pw.encode('utf-8'), bcrypt.gensalt())
+            result = result.decode('utf-8')
+            login[user] = result
             save()
             print('Your password has been changed!')
     else:
