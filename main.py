@@ -37,6 +37,9 @@ def register():
         global login
         login = json.load(f)
     user = input('Enter username:\n')
+    if user in login:
+        print('You are already registered.\n')
+        main()
     pw = input('Enter password:\n')
     result = hashlib.md5(pw.encode())
     login[user] = result.hexdigest()
@@ -44,19 +47,35 @@ def register():
     print('You are now registered!')
     main()
 
+def change():
+    with open('user.json') as f:
+        global login
+        login = json.load(f)
+    user = input('Enter username:\n')
+    if user in login:
+        pw = input('Enter password:\n')
+        result = hashlib.md5(pw.encode())
+        login[user] = result.hexdigest()
+        save()
+        print('Your password was changed!')
+    else:
+        print('Name not found!\n')
+        main()
 
 def save():
     with open('user.json', '+w') as f:
         json.dump(login, f)
 
 def main():
-    print("What would you like to do?\n1. Login\n2. Register\n3. Quit")
+    print("What would you like to do?\n1. Login\n2. Register\n3. Change password\n4. Quit")
     c = int(input('\n\nYour choice: '))
     if c == 1:
         log()
     elif c == 2:
         register()
     elif c == 3:
+        change()
+    elif c == 4:
         quit()
     else:
         print('Wrong choice...Retry...')
