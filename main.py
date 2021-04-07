@@ -53,11 +53,18 @@ def change():
         login = json.load(f)
     user = input('Enter username:\n')
     if user in login:
-        pw = input('Enter password:\n')
-        result = hashlib.md5(pw.encode())
-        login[user] = result.hexdigest()
-        save()
-        print('Your password was changed!')
+        old = input('Enter old password:\n')
+        old = hashlib.md5((old.encode())).hexdigest()
+        if old != login[user]:
+            print('Wrong password!')
+            main()
+            return
+        else:
+            pw = input('Enter new password:\n')
+            result = hashlib.md5(pw.encode())
+            login[user] = result.hexdigest()
+            save()
+            print('Your password has been changed!')
     else:
         print('Name not found!\n')
         main()
